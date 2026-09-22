@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "id": "krypton",
-  "version": "${version}",
-  "name": "Krypton",
-  "description": "A Fabric mod that optimizes the Minecraft networking stack and entity tracker.",
+  "id": "iungere",
+  "version": "1.0.0",
+  "name": "Iungere",
+  "description": "Modern networking and client-side optimizations for a smoother, more responsive experience.",
   "authors": [
-    "tuxed"
+    "astei, Walch"
   ],
   "contact": {
     "website": "https://github.com/astei/krypton",
@@ -13,14 +13,8 @@
   },
   "license": "LGPL-3.0",
   "icon": "assets/krypton/icon.png",
-  "environment": "*",
+  "environment": "client",
   "entrypoints": {
-    "client": [
-      "me.steinborn.krypton.mod.client.KryptonClientInitializer"
-    ],
-    "server": [
-      "me.steinborn.krypton.mod.server.KryptonServerInitializer"
-    ],
     "main": [
       "me.steinborn.krypton.mod.shared.KryptonSharedInitializer"
     ]
@@ -28,9 +22,8 @@
   "mixins": [
     "krypton.mixins.json"
   ],
-  "accessWidener": "krypton.accesswidener",
   "depends": {
     "fabricloader": ">=0.18.4",
-    "minecraft": ">=26.2"
+    "minecraft": "1.8.9"
   }
 }

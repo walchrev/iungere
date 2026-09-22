@@ -1,6 +1,7 @@
 plugins {
-    id 'net.fabricmc.fabric-loom' version '1.17-SNAPSHOT'
     id 'maven-publish'
+	id 'fabric-loom' version '1.18-SNAPSHOT'
+	id 'ploceus' version '1.18-SNAPSHOT'
 }
 
 repositories {
@@ -16,22 +17,17 @@ base {
     archivesName = project.archives_base_name
 }
 
-configurations {
-    shade.transitive = false
+ploceus {
+    setIntermediaryGeneration(2)
 }
 
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:6.0.3'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:6.0.3'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:6.0.3'
-
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    implementation include("com.velocitypowered:velocity-native:3.4.0-SNAPSHOT")
-}
+    mappings ploceus.featherMappings(project.feather_build)
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-test {
-    useJUnitPlatform()
+    implementation "com.velocitypowered:velocity-native:3.4.0-SNAPSHOT"
+    include "com.velocitypowered:velocity-native:3.4.0-SNAPSHOT"
 }
 
 processResources {
@@ -61,6 +57,13 @@ java {
 
 jar {
     from "LICENSE"
+    archiveBaseName = "iungere"
+    archiveVersion = "1.0.0"
+}
+
+remapJar {
+    archiveBaseName = "iungere"
+    archiveVersion = "1.0.0"
 }
 
 // configure the maven publication
@@ -91,7 +94,3 @@ publishing {
         }
     }
 }*/
-
-loom {
-    accessWidenerPath = file("src/main/resources/krypton.accesswidener")
-}

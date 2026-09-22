@@ -3,55 +3,47 @@ package me.steinborn.krypton.mod.shared.network.compression;
 import com.velocitypowered.natives.compression.VelocityCompressor;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.MessageToMessageDecoder;
-import net.minecraft.network.FriendlyByteBuf;
+import me.steinborn.krypton.mod.shared.network.util.VarInts;
 
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkState;
 import static com.velocitypowered.natives.util.MoreByteBufUtils.ensureCompatible;
 import static com.velocitypowered.natives.util.MoreByteBufUtils.preferredBuffer;
 
 /**
- * Decompresses a Minecraft packet.
+ * Decompresses a Minecraft 1.8.x packet. Behaves like vanilla's decoder: same limits, and packets
+ * marked "uncompressed" (size 0) are passed through without extra checks, so odd proxies and
+ * servers keep working.
  */
 public class MinecraftCompressDecoder extends MessageToMessageDecoder<ByteBuf> {
-
-    private static final int VANILLA_MAXIMUM_UNCOMPRESSED_SIZE = 8 * 1024 * 1024; // 8MiB
-    private static final int HARD_MAXIMUM_UNCOMPRESSED_SIZE = 128 * 1024 * 1024; // 128MiB
-
-    private static final int UNCOMPRESSED_CAP =
-            Boolean.getBoolean("krypton.permit-oversized-packets")
-                    ? HARD_MAXIMUM_UNCOMPRESSED_SIZE : VANILLA_MAXIMUM_UNCOMPRESSED_SIZE;
+    // Vanilla 1.8.9's limit
+    private static final int MAXIMUM_UNCOMPRESSED_SIZE = 2097152;
 
     private int threshold;
     private final VelocityCompressor compressor;
-    private final boolean validate;
 
-    public MinecraftCompressDecoder(int threshold, boolean validate, VelocityCompressor compressor) {
+    public MinecraftCompressDecoder(int threshold, VelocityCompressor compressor) {
         this.threshold = threshold;
         this.compressor = compressor;
-        this.validate = validate;
     }
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
-        FriendlyByteBuf bb = new FriendlyByteBuf(in);
-        int claimedUncompressedSize = bb.readVarInt();
+        int claimedUncompressedSize = VarInts.read(in);
         if (claimedUncompressedSize == 0) {
-            int actualUncompressedSize = in.readableBytes();
-            checkState(actualUncompressedSize < threshold, "Actual uncompressed size %s is greater than"
-                    + " threshold %s", actualUncompressedSize, threshold);
             out.add(in.retain());
             return;
         }
 
-        if (validate) {
-            checkState(claimedUncompressedSize >= threshold, "Uncompressed size %s is less than"
-                    + " threshold %s", claimedUncompressedSize, threshold);
-            checkState(claimedUncompressedSize <= UNCOMPRESSED_CAP,
-                    "Uncompressed size %s exceeds hard threshold of %s", claimedUncompressedSize,
-                    UNCOMPRESSED_CAP);
+        if (claimedUncompressedSize < threshold) {
+            throw new DecoderException("Badly compressed packet - size of " + claimedUncompressedSize
+                    + " is below server threshold of " + threshold);
+        }
+        if (claimedUncompressedSize > MAXIMUM_UNCOMPRESSED_SIZE) {
+            throw new DecoderException("Badly compressed packet - size of " + claimedUncompressedSize
+                    + " is larger than protocol maximum of " + MAXIMUM_UNCOMPRESSED_SIZE);
         }
 
         ByteBuf compatibleIn = ensureCompatible(ctx.alloc(), compressor, in);
