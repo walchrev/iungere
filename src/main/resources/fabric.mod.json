@@ -16,7 +16,8 @@
   "environment": "client",
   "entrypoints": {
     "main": [
-      "me.steinborn.krypton.mod.shared.KryptonSharedInitializer"
+      "me.steinborn.krypton.mod.shared.KryptonSharedInitializer",
+      "me.walch.iungere.HitDelayFix"
     ]
   },
   "mixins": [
@@ -26,5 +27,8 @@
   "depends": {
     "fabricloader": ">=0.18.4",
     "minecraft": "1.8.9"
+  },
+  "suggests": {
+    "argentum": "*"
   }
 }

@@ -1,0 +1,7 @@
+{
+  "iungere.options.pages.main": "Iungere",
+  "iungere.options.hit_delay_fix": "Hit Delay Fix",
+  "iungere.options.hit_delay_fix.tooltip": "Removes the vanilla attack cooldown delay that follows a missed attack.",
+  "iungere.options.mouse_delay_fix": "Mouse Delay Fix",
+  "iungere.options.mouse_delay_fix.tooltip": "Recomputes your look vector directly from current rotation instead of a stale cached value."
+}
