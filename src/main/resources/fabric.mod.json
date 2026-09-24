@@ -20,7 +20,8 @@
     ]
   },
   "mixins": [
-    "krypton.mixins.json"
+    "krypton.mixins.json",
+    "walch.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.18.4",

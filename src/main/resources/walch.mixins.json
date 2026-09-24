@@ -1,0 +1,13 @@
+{
+    "required": true,
+    "minVersion": "0.8",
+    "package": "me.walch.iungere.mixin",
+    "compatibilityLevel": "JAVA_21",
+    "mixins": [
+        "HitDelayFixMixin",
+        "MixinClientPlayerEntity"
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    }
+}
